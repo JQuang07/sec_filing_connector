@@ -1,195 +1,63 @@
-# SEC Filing Connector - Coding Test
+# SEC Filing Connector
 
-## Overview
+A Python CLI and library for looking up SEC company information and filings.
 
-Build a Python module that fetches and filters SEC EDGAR filings. This is a **2-3 hour coding test** focusing on clean code, typing, and testability.
+## Installation
 
-**You'll build:**
-- Company lookup (ticker → CIK)
-- Filing list with filters (form type, date range)
-- Basic download capability
+```bash
+pip install -e .
+```
 
+This installs the package in editable mode with all dependencies from `pyproject.toml` (httpx, pydantic, pytest).
 
----
+## Running Tests
+
+```bash
+pytest
+```
+
+Run all tests in `tests/test_client.py`. Tests cover:
+- Company lookup with CIK zero-padding to 10 digits
+- Filings filtering by form type and date range
+- Results sorting and limiting
+
+## CLI Usage
+
+Look up a company and retrieve filings:
+
+```bash
+python -m sec_connector.cli AAPL --form 10-K --limit 5
+```
+
+**Arguments:**
+- `TICKER` (required): Stock ticker symbol (e.g., AAPL, MSFT)
+- `--form`: Filter by form type (e.g., 10-K, 10-Q)
+- `--limit`: Max number of results (default: 10)
+
+**Example:**
+```bash
+python -m sec_connector.cli MSFT --form 10-Q --limit 3
+```
+
+## Fixtures
+
+Sample data is in `tests/fixtures/`:
+- `company_tickers.json`: Ticker → CIK/name mapping
+- `filings_sample.json`: Sample SEC filings
+
+Currently, `_fetch_filings_from_sec()` loads from the fixture file. To use real SEC EDGAR data, implement an httpx-based API call.
 
 ## Project Structure
 
 ```
 sec_connector/
-  pyproject.toml
-  README.md
-  sec_connector/
-    __init__.py
-    models.py      # Data models
-    client.py      # Core logic
-    cli.py         # Simple CLI
-  tests/
-    test_client.py
-    fixtures/
-      company_tickers.json
-      filings_sample.json
+  __init__.py
+  cli.py          # CLI entry point
+  client.py       # SECClient class
+  models.py       # Pydantic models (Company, Filing, FilingFilter)
+tests/
+  test_client.py  # Unit tests
+  fixtures/
+    company_tickers.json
+    filings_sample.json
 ```
-
----
-
-## Setup
-
-**Dependencies:** `httpx`, `pydantic`, `pytest`
-
-```toml
-# pyproject.toml
-[project]
-name = "sec-connector"
-version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = ["httpx>=0.24", "pydantic>=2.0", "pytest>=7.0"]
-```
-
----
-
-## Task 1: Data Models (15 min)
-
-Create Pydantic models in `models.py`:
-
-```python
-from pydantic import BaseModel
-from datetime import date
-
-class Company(BaseModel):
-    ticker: str
-    cik: str
-    name: str
-
-class Filing(BaseModel):
-    cik: str
-    company_name: str
-    form_type: str
-    filing_date: date
-    accession_number: str
-    
-class FilingFilter(BaseModel):
-    form_types: list[str] | None = None
-    date_from: date | None = None
-    date_to: date | None = None
-    limit: int = 10
-```
-
-**Test:** Models validate correctly and reject bad data.
-
----
-
-## Task 2: Company Lookup (20 min)
-
-In `client.py`, implement:
-
-```python
-class SECClient:
-    def __init__(self, companies_data: dict[str, dict]):
-        """Initialize with company ticker->info mapping."""
-        self._companies = companies_data
-    
-    def lookup_company(self, ticker: str) -> Company:
-        """Find company by ticker, raise ValueError if not found."""
-        # TODO: implement
-        pass
-```
-
-**Tests:**
-- Valid ticker returns Company
-- Invalid ticker raises ValueError
-- CIK is zero-padded to 10 digits
-
----
-
-## Task 3: Filter Filings (45 min)
-
-Implement filing search with filters:
-
-```python
-class SECClient:
-    # ... previous code ...
-    
-    def list_filings(self, cik: str, filters: FilingFilter) -> list[Filing]:
-        """
-        Get filings for a CIK, applying filters.
-        
-        - Filter by form_types (if provided)
-        - Filter by date range (if provided)
-        - Sort by date descending
-        - Limit results
-        """
-        # TODO: implement
-        pass
-```
-
-**Tests:**
-- No filters returns all filings (limited)
-- Form type filter works (only 10-K)
-- Date range filter works
-- Results sorted newest first
-- Limit respected
-
----
-
-## Task 4: CLI (30 min)
-
-Simple command-line interface in `cli.py`:
-
-```python
-import json
-from pathlib import Path
-from sec_connector.client import SECClient
-from sec_connector.models import FilingFilter
-
-def main():
-    """
-    Usage: python -m sec_connector.cli AAPL --form 10-K --limit 5
-    """
-    # TODO: Parse args (use argparse or simple sys.argv)
-    # Load fixtures
-    # Call client methods
-    # Print results as table or JSON
-    pass
-
-if __name__ == "__main__":
-    main()
-```
-
-**Test:** Run CLI with test data and verify output.
-
----
-
-## Task 5: Edge Cases & Polish (20 min)
-
-Add:
-- Input validation (empty strings, invalid dates)
-- Helpful error messages
-- Type hints throughout
-- Docstrings for public methods
-
----
-
-## What We're Looking For
-
-**Clean code** - Readable, well-organized  
-**Type safety** - Proper type hints, Pydantic validation  
-**Error handling** - Graceful failures with clear messages  
-**Filtering logic** - Correct implementation of all filters  
-
----
-
-## Submission
-
-Provide:
-1. Working code in the structure above
-2. Tests that pass: `pytest tests/`
-3. Brief README with:
-   - How to install: `pip install -e .`
-   - How to run tests: `pytest`
-   - Example CLI usage
-
-**Time estimate:** 2-3 hours
-
----
-
-Good luck! Focus on correctness and clarity over completeness.

@@ -1,0 +1,16 @@
+[
+  {
+    "filing_date": "2023-02-10",
+    "form_type": "10-Q",
+    "accession": "0000320193-23-000012",
+    "url": "https://www.sec.gov/ix?doc=/AAPL-20230210.htm",
+    "description": "Quarterly report"
+  },
+  {
+    "filing_date": "2023-02-01",
+    "form_type": "10-K",
+    "accession": "0000320193-23-000011",
+    "url": "https://www.sec.gov/ix?doc=/AAPL-20230201.htm",
+    "description": "Annual report"
+  }
+]
